@@ -12,6 +12,11 @@
 #include <chrono>
 #include <vector>
 #include "My_plane.h"
+#include "Enemy_1n.h"
+#include "Enemy_2r.h"
+#include "Enemy_3s.h"
+#include "Enemy_4d.h"
+#include "Enemy_5a.h"
 
 using namespace std;
 
