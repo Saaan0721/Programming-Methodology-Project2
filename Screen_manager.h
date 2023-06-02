@@ -12,6 +12,10 @@
 #include <chrono>
 #include <vector>
 #include "My_plane.h"
+#include "Object.h"
+#include "Powerup_bullet.h"
+#include "Levelup_bullet.h"
+#include "Enemy.h"
 #include "Enemy_1n.h"
 #include "Enemy_2r.h"
 #include "Enemy_3s.h"
@@ -29,6 +33,7 @@ class Screen_manager{
         int y, x;
         int width=60;
         int height=30;
+        int num_event;
         int frame_event[300]={0,}, y_event[300]={0,}, x_event[300]={0,};
         char type_event[300] = {' ',};
 
@@ -38,5 +43,6 @@ class Screen_manager{
         void render();
         char board[30][60]={'a'};
         My_plane my_plane = My_plane(height-2, 1, 0);
+        vector<Object> object;
 };
 #endif

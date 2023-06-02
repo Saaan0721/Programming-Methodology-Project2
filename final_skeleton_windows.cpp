@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     int num_event, frame_event, y_event, x_event;
     char type_event;
     input >> num_event;
+    manager.num_event = num_event;
     for(int i=0; i<num_event; i++){
         input >> frame_event >> type_event >> y_event >> x_event;
         manager.frame_event[i] = frame_event;

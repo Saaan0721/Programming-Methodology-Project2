@@ -7,10 +7,10 @@
 
 using std::vector;
 
-class Enemy_4d: Enemy {
+class Enemy_4d: public Enemy {
     public:
-    Enemy_4d(): Enemy(5, 4), cell_speed(3) {};
-    int get_cell_speed();
+    Enemy_4d(int _create_frame, int _y, int _x): Enemy(_create_frame, _y, _x, 5, 4), cell_speed(3) { set_symbol('d'); };
+    int get_cell_speed() { return cell_speed; }
 
     private:
     int cell_speed;

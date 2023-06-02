@@ -38,7 +38,7 @@ void Screen_manager::print_share(){
 
     int shot_frame, create_frame, check_frame;
 
-    //Bullet part
+    //Bullet part starts
     shot_frame = this->my_plane.shot_frame_my_plane;
     create_frame = this->my_plane.create_frame_my_plane;
     check_frame = this->my_plane.check_frame_my_plane;
@@ -64,6 +64,48 @@ void Screen_manager::print_share(){
         check_frame++;
     }
     //Bullet part ends
+
+    //Unit creation part starts
+    for(int i = 0; i < num_event; i++) {
+        if(frame_event[i] == curr_frame) {
+            switch(type_event[i]) {
+                case 'P': 
+                    object.push_back(Powerup_bullet(frame_event[i], y_event[i], x_event[i]));
+                    break;
+                
+                case 'L':
+                    object.push_back(Levelup_bullet(frame_event[i], y_event[i], x_event[i]));
+                    break;
+
+                case 'n':
+                    object.push_back(Enemy_1n(frame_event[i], y_event[i], x_event[i]));
+                    break;
+                
+                case 'r':
+                    object.push_back(Enemy_2r(frame_event[i], y_event[i], x_event[i]));
+                    break;
+                
+                case 's':
+                    object.push_back(Enemy_3s(frame_event[i], y_event[i], x_event[i]));
+                    break;
+                
+                case 'd':
+                    object.push_back(Enemy_4d(frame_event[i], y_event[i], x_event[i]));
+                    break;
+
+                case 'a':
+                    object.push_back(Enemy_5a(frame_event[i], y_event[i], x_event[i]));
+                    break;
+            }
+        }
+    }
+    //Unit creation part ends
+
+    //Interaction part starts
+    for(auto obj = object.begin(); obj < object.end(); obj++) {
+        board[obj->get_y()][obj->get_x()] = obj->get_symbol();
+    }
+    //Interaction part ends
 }
 
 //print when key didn't pressed

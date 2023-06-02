@@ -7,10 +7,10 @@
 
 using std::vector;
 
-class Enemy_5a: Enemy {
+class Enemy_5a: public Enemy {
     public:
-    Enemy_5a(): Enemy(8, 5), buff_speed(6) {};
-    int get_buff_speed();
+    Enemy_5a(int _create_frame, int _y, int _x): Enemy(_create_frame, _y, _x, 8, 5), buff_speed(6) { set_symbol('a'); };
+    int get_buff_speed() { return buff_speed; }
 
     private:
     int buff_speed;
