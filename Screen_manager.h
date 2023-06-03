@@ -43,6 +43,18 @@ class Screen_manager{
         void render();
         char board[30][60]={'a'};
         My_plane my_plane = My_plane(height-2, 1, 0);
-        vector<Object> object;
+        vector<Enemy> enemy;
+        vector<Object> item;
+    
+    private:
+    class Direction {
+        public:
+        Direction(int _x, int _y): x(_x), y(_y) {};
+        int x;
+        int y;
+    };
+    
+    // right, left, up, down
+    Direction direction[4] = {Direction(1, 0), Direction(-1, 0), Direction(0, -1), Direction(0, 1)};
 };
 #endif

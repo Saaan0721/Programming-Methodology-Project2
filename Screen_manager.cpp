@@ -10,6 +10,11 @@
 #include <vector>
 #include "Screen_manager.h"
 
+#define RIGHT 0
+#define LEFT 1
+#define UP 2
+#define DOWN 3
+
 using namespace std;
 
 //move cursor
@@ -43,8 +48,19 @@ void Screen_manager::print_share(){
     create_frame = this->my_plane.create_frame_my_plane;
     check_frame = this->my_plane.check_frame_my_plane;
     while ((curr_frame-create_frame)/shot_frame - check_frame > 0){ //bullet create
-        Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x, check_frame);
+        Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x, check_frame, my_plane.level);
         this->my_plane.bullet.push_back(bullet);
+
+        if(my_plane.is_powered) {
+            if(my_plane.x > 0) {
+                Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x-1, check_frame, my_plane.level);
+                this->my_plane.bullet.push_back(bullet);
+            }
+            if(my_plane.x < width-1) {
+                Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x+1, check_frame, my_plane.level);
+                this->my_plane.bullet.push_back(bullet);
+            }
+        }
 
         for(auto iter=this->my_plane.bullet.begin(); iter<this->my_plane.bullet.end(); ){
             if(iter->y<=0){
@@ -56,7 +72,7 @@ void Screen_manager::print_share(){
                     board[iter->y][iter->x]=' ';
                 }
                 iter->y -= shot_frame;
-                board[iter->y][iter->x]='\'';
+                board[iter->y][iter->x]=iter->get_symbol();
                 iter++;
             }
         }
@@ -70,31 +86,31 @@ void Screen_manager::print_share(){
         if(frame_event[i] == curr_frame) {
             switch(type_event[i]) {
                 case 'P': 
-                    object.push_back(Powerup_bullet(frame_event[i], y_event[i], x_event[i]));
+                    item.push_back(Powerup_bullet(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 'L':
-                    object.push_back(Levelup_bullet(frame_event[i], y_event[i], x_event[i]));
+                    item.push_back(Levelup_bullet(frame_event[i], y_event[i], x_event[i]));
                     break;
 
                 case 'n':
-                    object.push_back(Enemy_1n(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(Enemy_1n(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 'r':
-                    object.push_back(Enemy_2r(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(Enemy_2r(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 's':
-                    object.push_back(Enemy_3s(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(Enemy_3s(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 'd':
-                    object.push_back(Enemy_4d(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(Enemy_4d(frame_event[i], y_event[i], x_event[i]));
                     break;
 
                 case 'a':
-                    object.push_back(Enemy_5a(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(Enemy_5a(frame_event[i], y_event[i], x_event[i]));
                     break;
             }
         }
@@ -102,9 +118,61 @@ void Screen_manager::print_share(){
     //Unit creation part ends
 
     //Interaction part starts
-    for(auto obj = object.begin(); obj < object.end(); obj++) {
-        board[obj->get_y()][obj->get_x()] = obj->get_symbol();
+    
+    //Interaction with enemy starts
+    for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
+        char curr_char = board[iter->get_y()][iter->get_x()];
+        if(curr_char == 'M') { // if my_plane overlaps other object, do not print object
+            continue;
+        }
+
+        switch(curr_char) {
+            case 'M': // if my_plane meets enemy
+                my_plane.hp--;
+                break;
+
+            case '!':
+                iter->decrease_hp();
+            
+            case '^':
+                iter->decrease_hp();
+
+            case '\'':
+                iter->decrease_hp();
+                if(iter->get_hp() <= 0) {
+                    enemy.erase(iter);
+                    iter--;
+                    continue;
+                }
+                break;
+        }
+
+        board[iter->get_y()][iter->get_x()] = iter->get_symbol();
     }
+    //Interaction with enemy ends
+
+    //Interaction with item starts
+    for(auto iter = item.begin(); iter < item.end(); iter++) {
+        char curr_char = board[iter->get_y()][iter->get_x()];
+        if(curr_char == 'M') {
+            if(iter->get_symbol() == 'P') {
+                my_plane.is_powered = true;
+                item.erase(iter);
+                iter--;
+            }
+            else if(iter->get_symbol() == 'L') {
+                if(my_plane.level < 3) {
+                    my_plane.level++;
+                    item.erase(iter);
+                    iter--;
+                }
+            }
+            continue;
+        }
+        board[iter->get_y()][iter->get_x()] = iter->get_symbol();
+    }
+    //Interaction with item ends
+
     //Interaction part ends
 }
 
@@ -117,34 +185,57 @@ void Screen_manager::print(){
 
 //print when key pressed
 void Screen_manager::print(int ch){ //ascii
+    int dir;
     if(ch=='d'){ //right
         if(this->my_plane.y >=0 && this->my_plane.y <(height-1) && this->my_plane.x >0 && this->my_plane.x < (width-2)){
-            board[this->my_plane.y][this->my_plane.x]=' ';
-            this->my_plane.x +=1;
-            board[this->my_plane.y][this->my_plane.x]='M';
+            dir = RIGHT;
+            // board[this->my_plane.y][this->my_plane.x]=' ';
+            // this->my_plane.x +=1;
+            // board[this->my_plane.y][this->my_plane.x]='M';
+        }
+        else {
+            return;
         }
     }
     else if(ch=='a'){ //left
         if(this->my_plane.y >=0 && this->my_plane.y <(height-1) && this->my_plane.x >1 && this->my_plane.x < (width-1)){
-            board[this->my_plane.y][this->my_plane.x]=' ';
-            this->my_plane.x -=1;
-            board[this->my_plane.y][this->my_plane.x]='M';
+            dir = LEFT;
+            // board[this->my_plane.y][this->my_plane.x]=' ';
+            // this->my_plane.x -=1;
+            // board[this->my_plane.y][this->my_plane.x]='M';
+        }
+        else {
+            return;
         }
     }
     else if(ch=='w'){ //up
         if(this->my_plane.y >0 && this->my_plane.y <(height-1) && this->my_plane.x >0 && this->my_plane.x < (width-1)){
-            board[this->my_plane.y][this->my_plane.x]=' ';
-            this->my_plane.y -=1;
-            board[this->my_plane.y][this->my_plane.x]='M';
+            dir = UP;
+            // board[this->my_plane.y][this->my_plane.x]=' ';
+            // this->my_plane.y -=1;
+            // board[this->my_plane.y][this->my_plane.x]='M';
+        }
+        else {
+            return;
         }
     }
     else if(ch=='s'){ //down
         if(this->my_plane.y >=0 && this->my_plane.y <(height-2) && this->my_plane.x >0 && this->my_plane.x < (width-1)){
-            board[this->my_plane.y][this->my_plane.x]=' ';
-            this->my_plane.y +=1;
-            board[this->my_plane.y][this->my_plane.x]='M';
+            dir = DOWN;
+            // board[this->my_plane.y][this->my_plane.x]=' ';
+            // this->my_plane.y +=1;
+            // board[this->my_plane.y][this->my_plane.x]='M';
+        }
+        else {
+            return;
         }    
     }
+
+    board[this->my_plane.y][this->my_plane.x]=' ';
+    this->my_plane.x += direction[dir].x;
+    this->my_plane.y += direction[dir].y;
+    board[this->my_plane.y][this->my_plane.x]='M';
+
 
     print_share();
 }

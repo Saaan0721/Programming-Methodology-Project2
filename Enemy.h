@@ -5,12 +5,13 @@
 
 class Enemy: public Object {
     public:
-    Enemy(int _create_frame, int _y, int _x, int _hp, int _score): \
-        Object(_create_frame, _y, _x), hp(_hp), score(_score) {};
+    Enemy(int _create_frame, int _y, int _x, int _hp, int _score, char _symbol): \
+        Object(_create_frame, _y, _x), hp(_hp), score(_score) { set_symbol(_symbol); }
     int get_hp() { return hp; }
     int get_score() { return score; }
     void set_hp(int _hp) { hp = _hp; }
     void set_score(int _score) { score = _score; }
+    virtual void decrease_hp() { hp -= 1; }
 
     private:
     int hp;

@@ -24,5 +24,9 @@ class My_plane{
         int create_frame_my_plane; //initialize when it creates
         int check_frame_my_plane=0;
         vector<Bullet> bullet;
+
+        int hp = 10;
+        bool is_powered = false;
+        int level = 1;    
 };
 #endif

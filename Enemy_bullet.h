@@ -3,7 +3,7 @@
 
 #include "Bullet.h"
 
-class Enemy_bullet: Bullet {
+class Enemy_bullet: public Bullet {
     
 };
 
