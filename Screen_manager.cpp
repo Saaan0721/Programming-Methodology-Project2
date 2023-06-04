@@ -10,11 +10,6 @@
 #include <vector>
 #include "Screen_manager.h"
 
-#define RIGHT 0
-#define LEFT 1
-#define UP 2
-#define DOWN 3
-
 using namespace std;
 
 //move cursor
@@ -86,31 +81,31 @@ void Screen_manager::print_share(){
         if(frame_event[i] == curr_frame) {
             switch(type_event[i]) {
                 case 'P': 
-                    item.push_back(Powerup_bullet(frame_event[i], y_event[i], x_event[i]));
+                    item.push_back(new Powerup_bullet(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 'L':
-                    item.push_back(Levelup_bullet(frame_event[i], y_event[i], x_event[i]));
+                    item.push_back(new Levelup_bullet(frame_event[i], y_event[i], x_event[i]));
                     break;
 
                 case 'n':
-                    enemy.push_back(Enemy_1n(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(new Enemy_1n(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 'r':
-                    enemy.push_back(Enemy_2r(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(new Enemy_2r(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 's':
-                    enemy.push_back(Enemy_3s(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(new Enemy_3s(frame_event[i], y_event[i], x_event[i]));
                     break;
                 
                 case 'd':
-                    enemy.push_back(Enemy_4d(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(new Enemy_4d(frame_event[i], y_event[i], x_event[i]));
                     break;
 
                 case 'a':
-                    enemy.push_back(Enemy_5a(frame_event[i], y_event[i], x_event[i]));
+                    enemy.push_back(new Enemy_5a(frame_event[i], y_event[i], x_event[i]));
                     break;
             }
             type_event[i] = ' ';
@@ -122,7 +117,13 @@ void Screen_manager::print_share(){
     
     //Interaction with enemy starts
     for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
-        char curr_char = board[iter->get_y()][iter->get_x()];
+        char curr_char = board[(*iter)->get_y()][(*iter)->get_x()];
+        if((*iter)->act(curr_frame, board)) { // 
+            enemy.erase(iter);
+            iter--;
+            continue;
+        }
+
         if(curr_char == 'M') { // if my_plane overlaps other object, do not print object
             my_plane.hp--;
             continue;
@@ -130,28 +131,28 @@ void Screen_manager::print_share(){
 
         int damage = 1*(curr_char == '\'') + 2*(curr_char == '^') + 3*(curr_char == '!');
         if(damage > 0) {
-            iter->decrease_hp(damage);
-            if(iter->get_hp() <= 0) {
+            (*iter)->decrease_hp(damage);
+            if((*iter)->get_hp() <= 0) {
                 enemy.erase(iter);
                 iter--;
                 continue;
             }
         }
 
-        board[iter->get_y()][iter->get_x()] = iter->get_symbol();
+        board[(*iter)->get_y()][(*iter)->get_x()] = (*iter)->get_symbol();
     }
     //Interaction with enemy ends
 
     //Interaction with item starts
     for(auto iter = item.begin(); iter < item.end(); iter++) {
-        char curr_char = board[iter->get_y()][iter->get_x()];
+        char curr_char = board[(*iter)->get_y()][(*iter)->get_x()];
         if(curr_char == 'M') {
-            if(iter->get_symbol() == 'P') {
+            if((*iter)->get_symbol() == 'P') {
                 my_plane.is_powered = true;
                 item.erase(iter);
                 iter--;
             }
-            else if(iter->get_symbol() == 'L') {
+            else if((*iter)->get_symbol() == 'L') {
                 if(my_plane.level < 3) {
                     my_plane.level++;
                     item.erase(iter);
@@ -160,7 +161,7 @@ void Screen_manager::print_share(){
             }
             continue;
         }
-        board[iter->get_y()][iter->get_x()] = iter->get_symbol();
+        board[(*iter)->get_y()][(*iter)->get_x()] = (*iter)->get_symbol();
     }
     //Interaction with item ends
 
@@ -223,8 +224,8 @@ void Screen_manager::print(int ch){ //ascii
     }
 
     board[this->my_plane.y][this->my_plane.x]=' ';
-    this->my_plane.x += direction[dir].x;
-    this->my_plane.y += direction[dir].y;
+    this->my_plane.x += direction[dir].get_x();
+    this->my_plane.y += direction[dir].get_y();
     board[this->my_plane.y][this->my_plane.x]='M';
 
 

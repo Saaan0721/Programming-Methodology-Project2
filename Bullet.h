@@ -19,7 +19,7 @@ class Bullet{
         int damage=1;
         int y, x;
         int create_frame_bullet; //initialize when it creates
-        int check_frame_bullet;
+        int check_frame_bullet=0;
         int level=1;
 
         char get_symbol();

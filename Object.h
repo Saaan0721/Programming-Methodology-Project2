@@ -11,11 +11,13 @@ class Object {
     char get_symbol() { return symbol; }
     void set_symbol(char _symbol) { symbol = _symbol; }
 
-
-    private:
+    protected:
     int create_frame;
     int y, x;
-    char symbol;    
+    char symbol;  
+
+    private:
+      
 };
 
 #endif
