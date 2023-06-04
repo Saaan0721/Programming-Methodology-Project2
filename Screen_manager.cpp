@@ -113,6 +113,7 @@ void Screen_manager::print_share(){
                     enemy.push_back(Enemy_5a(frame_event[i], y_event[i], x_event[i]));
                     break;
             }
+            type_event[i] = ' ';
         }
     }
     //Unit creation part ends
@@ -123,28 +124,18 @@ void Screen_manager::print_share(){
     for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
         char curr_char = board[iter->get_y()][iter->get_x()];
         if(curr_char == 'M') { // if my_plane overlaps other object, do not print object
+            my_plane.hp--;
             continue;
         }
 
-        switch(curr_char) {
-            case 'M': // if my_plane meets enemy
-                my_plane.hp--;
-                break;
-
-            case '!':
-                iter->decrease_hp();
-            
-            case '^':
-                iter->decrease_hp();
-
-            case '\'':
-                iter->decrease_hp();
-                if(iter->get_hp() <= 0) {
-                    enemy.erase(iter);
-                    iter--;
-                    continue;
-                }
-                break;
+        int damage = 1*(curr_char == '\'') + 2*(curr_char == '^') + 3*(curr_char == '!');
+        if(damage > 0) {
+            iter->decrease_hp(damage);
+            if(iter->get_hp() <= 0) {
+                enemy.erase(iter);
+                iter--;
+                continue;
+            }
         }
 
         board[iter->get_y()][iter->get_x()] = iter->get_symbol();

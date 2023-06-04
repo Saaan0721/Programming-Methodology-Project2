@@ -11,7 +11,7 @@ class Enemy: public Object {
     int get_score() { return score; }
     void set_hp(int _hp) { hp = _hp; }
     void set_score(int _score) { score = _score; }
-    virtual void decrease_hp() { hp -= 1; }
+    virtual void decrease_hp(int damage) { hp -= damage; }
 
     private:
     int hp;
