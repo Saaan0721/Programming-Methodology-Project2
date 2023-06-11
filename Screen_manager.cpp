@@ -118,28 +118,27 @@ void Screen_manager::print_share(){
     //Interaction with enemy starts
     for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
         char curr_char = board[(*iter)->get_y()][(*iter)->get_x()];
-        if((*iter)->act(curr_frame, board)) { // 
+
+        if(curr_char == 'M') { // if my_plane overlaps enemy, get damaged
+            my_plane.hp--;
+        }
+
+        // calculate damage of bullet
+        int damage = 1*(curr_char == '\'') + 2*(curr_char == '^') + 3*(curr_char == '!');
+        if(damage > 0) { // if bullet exists, damage enemy
+            (*iter)->decrease_hp(damage);
+        }
+
+        if((*iter)->act(curr_frame, board, enemy)) { // enemy do its own action
+            killed_enemy.push_back(*iter);
             enemy.erase(iter);
             iter--;
             continue;
         }
 
-        if(curr_char == 'M') { // if my_plane overlaps other object, do not print object
-            my_plane.hp--;
-            continue;
+        if(curr_char != 'M' && (*iter)->get_hp() > 0) {
+            board[(*iter)->get_y()][(*iter)->get_x()] = (*iter)->get_symbol();
         }
-
-        int damage = 1*(curr_char == '\'') + 2*(curr_char == '^') + 3*(curr_char == '!');
-        if(damage > 0) {
-            (*iter)->decrease_hp(damage);
-            if((*iter)->get_hp() <= 0) {
-                enemy.erase(iter);
-                iter--;
-                continue;
-            }
-        }
-
-        board[(*iter)->get_y()][(*iter)->get_x()] = (*iter)->get_symbol();
     }
     //Interaction with enemy ends
 

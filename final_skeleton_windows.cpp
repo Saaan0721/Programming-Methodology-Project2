@@ -63,6 +63,10 @@ int main(int argc, char *argv[])
             ch = getKeyDown();
             manager.print(ch);
             if(ch=='x') break;
+            if(ch=='p') {
+                _getch();
+                start = std::chrono::system_clock::now();
+            }
         }
         else{
             manager.print();

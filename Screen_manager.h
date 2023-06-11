@@ -59,11 +59,14 @@ class Screen_manager{
             int y;
         };
 
-// right, left, up, down
-Direction direction[4] = {Direction(1, 0), Direction(-1, 0), Direction(0, -1), Direction(0, 1)};
+        // right, left, up, down
+        Direction direction[4] = {Direction(1, 0), Direction(-1, 0), Direction(0, -1), Direction(0, 1)};
     
     private:
         vector<Enemy*> enemy;
+        vector<Enemy*> killed_enemy;
         vector<Object*> item;
+
 };
+
 #endif
