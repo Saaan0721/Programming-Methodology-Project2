@@ -43,16 +43,18 @@ void Screen_manager::print_share(){
     create_frame = this->my_plane.create_frame_my_plane;
     check_frame = this->my_plane.check_frame_my_plane;
     while ((curr_frame-create_frame)/shot_frame - check_frame > 0){ //bullet create
-        Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x, check_frame, my_plane.level);
+        int y = this->my_plane.y;
+        int x = this->my_plane.x;
+        Bullet bullet = Bullet(y-1+shot_frame, x, check_frame, my_plane.level);
         this->my_plane.bullet.push_back(bullet);
 
         if(my_plane.is_powered) {
-            if(my_plane.x > 0) {
-                Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x-1, check_frame, my_plane.level);
+            if(x > 0) {
+                Bullet bullet = Bullet(y-1+shot_frame, x-1, check_frame, my_plane.level);
                 this->my_plane.bullet.push_back(bullet);
             }
             if(my_plane.x < width-1) {
-                Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x+1, check_frame, my_plane.level);
+                Bullet bullet = Bullet(y-1+shot_frame, x+1, check_frame, my_plane.level);
                 this->my_plane.bullet.push_back(bullet);
             }
         }
@@ -119,9 +121,14 @@ void Screen_manager::print_share(){
     for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
         char curr_char = board[(*iter)->get_y()][(*iter)->get_x()];
 
-        if(curr_char == 'M') { // if my_plane overlaps enemy, get damaged
-            my_plane.hp--;
+        if(curr_frame > damage_frame) {
+            if(curr_char == 'M') { // if my_plane overlaps enemy, get damaged
+                my_plane.hp--;
+                cout << my_plane.hp;
+                damage_frame = curr_frame;
+            }
         }
+        
 
         // calculate damage of bullet
         int damage = 1*(curr_char == '\'') + 2*(curr_char == '^') + 3*(curr_char == '!');
@@ -138,6 +145,10 @@ void Screen_manager::print_share(){
 
         if(curr_char != 'M' && (*iter)->get_hp() > 0) {
             board[(*iter)->get_y()][(*iter)->get_x()] = (*iter)->get_symbol();
+        }
+
+        if(my_plane.hp <= 0) {
+            gameover();
         }
     }
     //Interaction with enemy ends
@@ -221,6 +232,9 @@ void Screen_manager::print(int ch){ //ascii
             return;
         }    
     }
+    else { // if input is other key, return.
+        return;
+    }
 
     board[this->my_plane.y][this->my_plane.x]=' ';
     this->my_plane.x += direction[dir].get_x();
@@ -229,4 +243,16 @@ void Screen_manager::print(int ch){ //ascii
 
 
     print_share();
+}
+
+void Screen_manager::gameover() {
+    int score = 0;
+    system("cls");
+    cout << "Your score is " << endl;
+    for(auto iter: killed_enemy) {
+        score += iter->get_score();
+        cout << iter->get_symbol() << endl;
+    }
+    cout << score;
+    exit(EXIT_SUCCESS);
 }

@@ -1,5 +1,7 @@
 #include "Enemy_4d.h"
 
+int Enemy_4d::get_cell_speed() { return cell_speed; }
+
 bool Enemy_4d::act(int curr_frame, char board[][WIDTH], vector<Enemy*>& enemy) {
     if(get_hp() > 0) { // if enemy still alive, move and shoot
         if((curr_frame-create_frame)/cell_speed - check_frame > 0) { // move and create enemy bullet 
