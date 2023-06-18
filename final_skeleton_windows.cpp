@@ -8,6 +8,7 @@
 #include <conio.h>
 #include <chrono>
 #include <vector>
+#include <cassert>
 #include "Screen_manager.h"
 #include "keyboard_controller.cpp"
 
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
             ch = getKeyDown();
             manager.print(ch);
             if(ch=='x') break;
-            if(ch=='p') {
+            else if(ch=='p') {
                 _getch();
                 start = std::chrono::system_clock::now();
             }

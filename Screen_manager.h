@@ -29,6 +29,8 @@ class Screen_manager{
     public:
         int frame_length=100000; //each frame's length == 0.1sec(10,000 microseconds)
         int curr_frame=0; //1frame=0.1sec
+        int prev_frame=0;
+        int damage_frame=0;
 
         int y, x;
         int width=60;
@@ -44,6 +46,7 @@ class Screen_manager{
         char board[30][60]={'a'};
         My_plane my_plane = My_plane(height-2, 1, 0);
 
+    
         enum Dir {
             RIGHT, LEFT, UP, DOWN,
             
@@ -61,6 +64,8 @@ class Screen_manager{
 
         // right, left, up, down
         Direction direction[4] = {Direction(1, 0), Direction(-1, 0), Direction(0, -1), Direction(0, 1)};
+
+        void gameover();
     
     private:
         vector<Enemy*> enemy;

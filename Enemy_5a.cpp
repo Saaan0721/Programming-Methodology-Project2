@@ -6,6 +6,8 @@
 
 using std::abs;
 
+int Enemy_5a::get_buff_speed() { return buff_speed; }
+
 bool Enemy_5a::act(int curr_frame, char board[][WIDTH], vector<Enemy*>& enemy) {
     if((curr_frame-create_frame)/buff_speed - check_frame > 0) {
         for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
@@ -16,5 +18,6 @@ bool Enemy_5a::act(int curr_frame, char board[][WIDTH], vector<Enemy*>& enemy) {
             }
         }
     }
-    return false;
+    
+    return (get_hp() <= 0);
 }

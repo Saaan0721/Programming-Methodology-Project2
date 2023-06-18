@@ -8,9 +8,13 @@
 #include <conio.h>
 #include <chrono>
 #include <vector>
+#include <cctype>
+#include <unordered_map>
 #include "Screen_manager.h"
 
 using namespace std;
+
+#define ENEMY_TYPE 5
 
 //move cursor
 void cursorYX(int y, int x)
@@ -43,16 +47,18 @@ void Screen_manager::print_share(){
     create_frame = this->my_plane.create_frame_my_plane;
     check_frame = this->my_plane.check_frame_my_plane;
     while ((curr_frame-create_frame)/shot_frame - check_frame > 0){ //bullet create
-        Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x, check_frame, my_plane.level);
+        int y = this->my_plane.y;
+        int x = this->my_plane.x;
+        Bullet bullet = Bullet(y-1+shot_frame, x, check_frame, my_plane.level);
         this->my_plane.bullet.push_back(bullet);
 
         if(my_plane.is_powered) {
-            if(my_plane.x > 0) {
-                Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x-1, check_frame, my_plane.level);
+            if(x > 0) {
+                Bullet bullet = Bullet(y-1+shot_frame, x-1, check_frame, my_plane.level);
                 this->my_plane.bullet.push_back(bullet);
             }
             if(my_plane.x < width-1) {
-                Bullet bullet = Bullet(this->my_plane.y-1+shot_frame, this->my_plane.x+1, check_frame, my_plane.level);
+                Bullet bullet = Bullet(y-1+shot_frame, x+1, check_frame, my_plane.level);
                 this->my_plane.bullet.push_back(bullet);
             }
         }
@@ -119,9 +125,14 @@ void Screen_manager::print_share(){
     for(auto iter = enemy.begin(); iter < enemy.end(); iter++) {
         char curr_char = board[(*iter)->get_y()][(*iter)->get_x()];
 
-        if(curr_char == 'M') { // if my_plane overlaps enemy, get damaged
-            my_plane.hp--;
+        if(curr_frame > damage_frame) {
+            if(curr_char == 'M') { // if my_plane overlaps enemy, get damaged
+                my_plane.hp--;
+                cout << my_plane.hp;
+                damage_frame = curr_frame;
+            }
         }
+        
 
         // calculate damage of bullet
         int damage = 1*(curr_char == '\'') + 2*(curr_char == '^') + 3*(curr_char == '!');
@@ -138,6 +149,10 @@ void Screen_manager::print_share(){
 
         if(curr_char != 'M' && (*iter)->get_hp() > 0) {
             board[(*iter)->get_y()][(*iter)->get_x()] = (*iter)->get_symbol();
+        }
+
+        if(my_plane.hp <= 0) {
+            gameover();
         }
     }
     //Interaction with enemy ends
@@ -221,6 +236,9 @@ void Screen_manager::print(int ch){ //ascii
             return;
         }    
     }
+    else { // if input is other key, return.
+        return;
+    }
 
     board[this->my_plane.y][this->my_plane.x]=' ';
     this->my_plane.x += direction[dir].get_x();
@@ -229,4 +247,45 @@ void Screen_manager::print(int ch){ //ascii
 
 
     print_share();
+}
+
+class Score {
+    public:
+    void insert(char s) {
+        s = tolower(s);
+        for(int i = 0; i < ENEMY_TYPE; i++) {
+            if(symbol[i] == s) {
+                count[i]++;
+            }
+        }
+    }
+    const char get_symbol(int i) { return symbol[i]; }
+    const int get_count(int i) { return count[i]; }
+
+    private:
+    char symbol[ENEMY_TYPE] = {'n', 'r', 's', 'd', 'a'};
+    int count[ENEMY_TYPE] = {0,};
+};
+
+void Screen_manager::gameover() {
+    int score = 0;
+    Score score_class;
+
+    for(auto iter: killed_enemy) {
+        score_class.insert(iter->get_symbol());
+        score += iter->get_score();
+    }
+
+    system("cls");
+    cout << "Your score is " << score << " (";
+
+    for(int i = 0; i < ENEMY_TYPE; i++) {
+        cout << score_class.get_symbol(i) << " : " << score_class.get_count(i);
+        if(i < ENEMY_TYPE-1) {
+            cout << " , ";
+        }
+    }
+    cout << ")";
+    
+    exit(EXIT_SUCCESS);
 }
