@@ -18,6 +18,5 @@ bool Enemy_5a::act(int curr_frame, char board[][WIDTH], vector<Enemy*>& enemy) {
             }
         }
     }
-    
-    return (get_hp() <= 0);
+    return false;
 }
